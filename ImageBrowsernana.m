@@ -23,7 +23,7 @@ function varargout = ImageBrowser(varargin)
 
 % Edit the above text to modify the response to help ImageBrowser
 
-% Last Modified by GUIDE v2.5 19-Jul-2018 15:30:43
+% Last Modified by GUIDE v2.5 01-Aug-2018 16:44:30
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -173,15 +173,55 @@ end
 
 % --- Executes on button press in pushbutton3.
 function pushbutton3_Callback(hObject, eventdata, handles)
-dataset =xlsread('Training.xls');
-%dataset.Variables = dataset.Variables.*3;
-%dataset.(1) = dataset.(1)*3; 
+
+[filename ,pathname] = uigetfile({'*.xls'},'File Selector');
+image = strcat(pathname,filename);
+dataset =xlsread(image,'Sheet1');
+%Work on Training Data
+fullTable = readtable(image);
+ID_REF_COL = fullTable.ID_REF;
+ID_REF_ROW = fullTable.Properties.VariableNames;
+NumberTable= fullTable(:,2:end);
+ArrayTable = table2array(NumberTable);
+minimum = min(ArrayTable(:));
+maximum = max(ArrayTable(:));
+difference = maximum - minimum;
+FinalTable = round(ArrayTable*(0.9/difference),4);
+%Work on Test Data
+FullTestData = readtable('BeginnerTest.xlsx');
+%Test_ID_REF_COL = FullTestData.ID_REF;
+%Test_ID_REF_ROW = FullTestData.Properties.VariableNames;
+Test_ID_REF_COL =cell2table(FullTestData.ID_REF);
+Test_ID_REF_ROW =cell2table(FullTestData.Properties.VariableNames);
+
+
+TestNumberTable= FullTestData(:,2:end);
+TestArrayTable = table2array(TestNumberTable);
+minimum1 = min(TestArrayTable(:));
+maximum1 = max(TestArrayTable(:));
+TestFinalTable = round(TestArrayTable*(0.9/(maximum1-minimum1)),4);
+
+
+%Calculations of Value
+
+set(handles.uitable1,'data',dataset);
+%dataset = readtable(image);
 diff=max(dataset(:))-min(dataset(:));
-[row,column] = size(dataset);
-   
-     %  disp(dataset(1:row)*diff);
-   
-set(handles.uitable1,'data',dataset(1:row,1:column)*(0.9/diff));
+
+
+
+set(handles.edit1,'string',filename);
+set(handles.edit2,'string',pathname);
+set(handles.edit3,'string',image);
+set(handles.text5,'string',diff);
+
 % hObject    handle to pushbutton3 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% --- Executes on button press in pushbutton5.
+function pushbutton5_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton5 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
